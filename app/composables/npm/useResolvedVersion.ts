@@ -1,4 +1,4 @@
-import type { ResolvedPackageVersion } from 'fast-npm-meta'
+import type { PackageVersionsInfo, ResolvedPackageVersion } from 'fast-npm-meta'
 
 export function useResolvedVersion(
   packageName: MaybeRefOrGetter<string>,
@@ -13,6 +13,20 @@ export function useResolvedVersion(
         ? `https://npm.antfu.dev/${name}@${version}`
         : `https://npm.antfu.dev/${name}`
       const data = await $fetch<ResolvedPackageVersion>(url)
+
+      // The fast-npm-meta API echoes back non-existent exact versions without
+      // error (no publishedAt, no validation). When publishedAt is missing for
+      // an exact version request, cross-check the versions list to confirm the
+      // version actually exists in the registry.
+      if (version && /^\d/.test(version) && !data.publishedAt) {
+        const versionsData = await $fetch<PackageVersionsInfo>(
+          `https://npm.antfu.dev/versions/${name}`,
+        )
+        if (!versionsData.versions.includes(version)) {
+          return undefined
+        }
+      }
+
       return data.version
     },
     { default: () => undefined },
