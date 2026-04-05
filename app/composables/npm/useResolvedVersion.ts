@@ -1,4 +1,5 @@
 import type { PackageVersionsInfo, ResolvedPackageVersion } from 'fast-npm-meta'
+import semver from 'semver'
 
 export function useResolvedVersion(
   packageName: MaybeRefOrGetter<string>,
@@ -18,7 +19,7 @@ export function useResolvedVersion(
       // error (no publishedAt, no validation). When publishedAt is missing for
       // an exact version request, cross-check the versions list to confirm the
       // version actually exists in the registry.
-      if (version && /^\d/.test(version) && !data.publishedAt) {
+      if (version && semver.valid(version) && !data.publishedAt) {
         const versionsData = await $fetch<PackageVersionsInfo>(
           `https://npm.antfu.dev/versions/${name}`,
         )

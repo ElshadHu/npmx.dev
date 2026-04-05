@@ -118,7 +118,7 @@ describe('useResolvedVersion', () => {
   })
 
   it('does not cross-check dist-tags against the versions list', async () => {
-    // Dist-tags start with a letter — the /^\d/ guard short-circuits the check
+    // Dist-tags start with a letter
     fetchSpy.mockResolvedValue(
       makeResolvedVersion({
         name: 'pkg-dist-tag-next',
